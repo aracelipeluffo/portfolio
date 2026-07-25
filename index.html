@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ara Peluffo — Portfolio</title>
+
+<!-- ============================================================
+     TIPOGRAFÍAS
+     Se usan dos familias de Google Fonts:
+     - "Space Grotesk"  → títulos / display
+     - "Inter"          → texto de cuerpo
+     Para cambiarlas, reemplazá el link de abajo y los valores
+     de --font-display / --font-body en :root (más abajo en el CSS).
+     ============================================================ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ==================================================================
+   1. TOKENS DE DISEÑO — TODA LA PALETA Y TIPOGRAFÍA SE EDITA ACÁ
+   ================================================================== */
+:root{
+  /* --- Colores principales (negro / azul / violeta) --- */
+  --bg:          #07070b;   /* negro de fondo principal */
+  --bg-soft:     #0c0c14;   /* negro un poco más claro, para secciones alternas */
+  --surface:     #12121d;   /* superficie de tarjetas / modal */
+  --border:      #23232f;   /* líneas y bordes sutiles */
+
+  --blue:        #3d5aff;   /* azul principal */
+  --blue-dim:    #1f2d80;   /* azul apagado, para sombras/gradientes */
+  --violet:      #8b5cf6;   /* violeta principal */
+  --violet-dim:  #4c1d95;   /* violeta apagado, para sombras/gradientes */
+
+  --text:        #f2f2f7;   /* texto principal */
+  --text-muted:  #9494a6;   /* texto secundario */
+
+  /* --- Tipografía --- */
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body:    'Inter', sans-serif;
+
+  /* --- Layout --- */
+  --max-width: 1240px;
+  --radius: 14px;
+}
+
+/* ==================================================================
+   2. RESET BÁSICO
+   ================================================================== */
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+html{ scroll-behavior:smooth; }
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  line-height:1.55;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  /* Fondo ambiental: leve degradé negro→azul→violeta muy apagado, fijo al viewport */
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(61,90,255,0.10), transparent 40%),
+    radial-gradient(circle at 85% 30%, rgba(139,92,246,0.10), transparent 45%);
+  background-attachment:fixed;
+}
+img{ max-width:100%; display:block; }
+a{ color:inherit; text-decoration:none; }
+ul{ list-style:none; }
+button{ font:inherit; cursor:pointer; }
+/* Foco visible y consistente al navegar con teclado (Tab) */
+a:focus-visible, button:focus-visible{
+  outline:2px solid var(--violet);
+  outline-offset:3px;
+  border-radius:4px;
+}
+section{ padding:clamp(4rem, 8vw, 7rem) 0; scroll-margin-top:5.5rem; } /* compensa la altura del nav fijo al hacer scroll a un ancla */
+.container{
+  width:100%;
+  max-width:var(--max-width);
+  margin-inline:auto;
+  padding-inline:clamp(1.25rem, 4vw, 2.5rem);
+}
+h1,h2,h3{ font-family:var(--font-display); font-weight:600; letter-spacing:-0.02em; }
+
+/* Todo el contenido principal del sitio (nav, hero —incluida la foto—, secciones y footer)
+   vive dentro de .container, que centra y limita el ancho máximo sobre el fondo negro de
+   <body>. Así el contenido nunca ocupa el 100% del viewport en pantallas grandes. */
+
+/* ==================================================================
+   3. NAVEGACIÓN
+   ================================================================== */
+.nav{
+  position:fixed;
+  top:0; left:0; right:0;
+  z-index:100;
+  -webkit-backdrop-filter:blur(10px); /* prefijo necesario para que el blur funcione en Safari */
+  backdrop-filter:blur(10px);
+  background:rgba(7,7,11,0.65);
+  border-bottom:1px solid var(--border);
+}
+.nav__inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding-block:1.1rem;
+}
+.nav__logo{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:1.1rem;
+  letter-spacing:0.02em;
+}
+.nav__logo span{ color:var(--violet); } /* acento violeta en el logo */
+
+.nav__links{
+  display:flex;
+  gap:clamp(1.2rem, 3vw, 2.2rem);
+  font-size:0.92rem;
+  color:var(--text-muted);
+}
+.nav__links a{ transition:color .25s ease; }
+.nav__links a:hover{ color:var(--text); }
+
+/* Menú se reduce en mobile: se conservan los links pero más compactos */
+@media (max-width:600px){
+  .nav__links{ gap:0.9rem; font-size:0.8rem; }
+}
+
+/* ==================================================================
+   4. HERO — imagen principal integrada al fondo con movimiento sutil
+   ================================================================== */
+.hero{
+  position:relative;
+  min-height:100vh;  /* fallback para navegadores sin soporte de unidades svh */
+  min-height:100svh;
+  display:flex;
+  align-items:center;
+  padding-top:6rem;
+  overflow:hidden;
+}
+
+.hero__grid{
+  /* Composición tipo uxkid.com: una sola columna centrada (la foto es el
+     elemento principal), en vez del grid de 2 columnas que dejaba una
+     franja vacía a la derecha cuando la columna de texto tiene poco contenido */
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  gap:clamp(1.5rem, 4vw, 2.5rem);
+  max-width:100%;
+}
+
+.hero__eyebrow{
+  font-size:0.85rem;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--violet);
+  margin-bottom:1rem;
+}
+
+.hero__title{
+  font-size:clamp(2.4rem, 6vw, 4.4rem);
+  line-height:1.04;
+}
+.hero__title em{
+  font-style:normal;
+  background:linear-gradient(100deg, var(--blue), var(--violet));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+.hero__text{
+  margin-top:1.4rem;
+  max-width:46ch;
+  color:var(--text-muted);
+  font-size:1.05rem;
+}
+
+.hero__actions{
+  display:flex;
+  gap:1rem;
+  margin-top:2.2rem;
+  flex-wrap:wrap;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:0.5rem;
+  padding:0.85rem 1.6rem;
+  border-radius:999px;
+  font-size:0.92rem;
+  font-weight:500;
+  transition:transform .25s ease, box-shadow .25s ease;
+}
+.btn--primary{
+  background:linear-gradient(100deg, var(--blue), var(--violet));
+  color:#fff;
+}
+.btn--primary:hover{ transform:translateY(-2px); box-shadow:0 10px 30px -10px var(--violet); }
+.btn--ghost{
+  border:1px solid var(--border);
+  color:var(--text);
+}
+.btn--ghost:hover{ border-color:var(--violet); }
+
+/* --- Imagen principal + "blobs" animados que la integran al fondo --- */
+.hero__visual{
+  position:relative;
+  aspect-ratio:4/5;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* Manchas de luz azul/violeta que flotan detrás de la foto (SIGNATURE ELEMENT) */
+.hero__glow{
+  position:absolute;
+  inset:-15%;
+  z-index:0;
+  filter:blur(60px);
+  pointer-events:none;
+}
+.hero__glow span{
+  position:absolute;
+  border-radius:50%;
+  opacity:0.55;
+  mix-blend-mode:screen;
+}
+.hero__glow span:nth-child(1){
+  width:55%; height:55%; top:5%; left:0;
+  background:var(--blue);
+  animation:float-a 14s ease-in-out infinite;
+}
+.hero__glow span:nth-child(2){
+  width:60%; height:60%; bottom:0; right:0;
+  background:var(--violet);
+  animation:float-b 17s ease-in-out infinite;
+}
+
+@keyframes float-a{
+  0%,100%{ transform:translate(0,0) scale(1); }
+  50%{ transform:translate(6%, 8%) scale(1.12); }
+}
+@keyframes float-b{
+  0%,100%{ transform:translate(0,0) scale(1); }
+  50%{ transform:translate(-7%, -6%) scale(1.08); }
+}
+
+/* Contenedor de la foto: máscara para que se funda con el fondo en los bordes */
+.hero__photo{
+  position:relative;
+  z-index:1;
+  width:min(100%, 420px);
+  margin-inline:auto;
+  border-radius:var(--radius);
+  overflow:hidden;
+  -webkit-mask-image:radial-gradient(ellipse at center, #000 68%, transparent 100%);
+  mask-image:radial-gradient(ellipse at center, #000 68%, transparent 100%);
+  animation:breathe 9s ease-in-out infinite;
+}
+@keyframes breathe{
+  0%,100%{ transform:scale(1); }
+  50%{ transform:scale(1.025); }
+}
+
+/* La foto en sí: se reemplaza el src de abajo por la imagen real */
+.hero__photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  filter:grayscale(1) contrast(1.08) brightness(0.92);
+}
+/* Capa de "duotono" azul→violeta sobre la foto para integrarla a la paleta */
+.hero__photo::after{
+  content:"";
+  position:absolute; inset:0;
+  background:linear-gradient(160deg, var(--blue) 0%, var(--violet) 100%);
+  mix-blend-mode:color;
+  opacity:0.55;
+}
+
+/* Respeta a usuarios que prefieren menos movimiento */
+@media (prefers-reduced-motion: reduce){
+  .hero__glow span, .hero__photo{ animation:none; }
+}
+
+/* ==================================================================
+   5. SOBRE MÍ
+   ================================================================== */
+.about{
+  border-top:1px solid var(--border);
+  background:var(--bg-soft);
+}
+.about__grid{
+  display:grid;
+  grid-template-columns:0.9fr 1.1fr;
+  gap:clamp(2rem, 5vw, 4rem);
+  align-items:start;
+}
+.section-label{
+  font-size:0.85rem;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--blue);
+  margin-bottom:0.8rem;
+}
+.about h2{ font-size:clamp(1.8rem, 3.5vw, 2.6rem); margin-bottom:1.2rem; }
+.about p{ color:var(--text-muted); max-width:60ch; }
+.about p + p{ margin-top:1rem; }
+
+.skills{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.6rem;
+  margin-top:1.8rem;
+}
+.skills li{
+  padding:0.5rem 1rem;
+  border:1px solid var(--border);
+  border-radius:999px;
+  font-size:0.85rem;
+  color:var(--text-muted);
+  transition:border-color .2s ease, color .2s ease;
+}
+.skills li:hover{ border-color:var(--violet); color:var(--text); }
+
+@media (max-width:800px){
+  .about__grid{ grid-template-columns:1fr; }
+}
+
+/* ==================================================================
+   6. PORTFOLIO — carrusel de tarjetas en composición tipo "cartas"
+   (superpuestas, con rotación y profundidad distintas por tarjeta)
+   ================================================================== */
+.projects__header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:1.5rem;
+  margin-bottom:2.5rem;
+  flex-wrap:wrap;
+}
+.projects__header h2{ font-size:clamp(1.8rem, 3.5vw, 2.6rem); }
+
+.carousel__controls{ display:flex; gap:0.6rem; }
+.carousel__btn{
+  width:44px; height:44px;
+  border-radius:50%;
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--text);
+  display:flex; align-items:center; justify-content:center;
+  transition:border-color .2s ease, background .2s ease;
+}
+.carousel__btn:hover{ border-color:var(--violet); background:var(--violet-dim); }
+
+/* Pista deslizable: funciona con scroll nativo, arrastre de mouse (JS) y touch.
+   overflow-y queda "visible" para no recortar las tarjetas rotadas; el navegador
+   lo trata como "auto" automáticamente, sin generar scrollbar vertical visible
+   porque el padding de abajo/arriba ya deja lugar de sobra para la rotación. */
+.carousel{
+  --rot-scale:1; /* multiplicador de rotación, se reduce en mobile más abajo */
+  display:flex;
+  align-items:center;
+  overflow-x:auto;
+  overflow-y:visible;
+  scroll-snap-type:x proximity; /* scroll continuo y suave, sin saltos bruscos */
+  scroll-behavior:smooth;
+  padding:2.75rem clamp(1rem, 4vw, 2rem) 3.5rem;
+  scrollbar-width:none; /* Firefox */
+  cursor:grab; /* indica que el carrusel se puede arrastrar con mouse en desktop */
+  -webkit-overflow-scrolling:touch; /* scroll con inercia en iOS Safari */
+  overscroll-behavior-x:contain; /* evita que el arrastre "empuje" el scroll de toda la página */
+}
+.carousel::-webkit-scrollbar{ display:none; } /* Chrome/Safari */
+/* Clase que activa el JS mientras se arrastra: desactiva el snap para que el drag sea fluido */
+.carousel.is-dragging{ cursor:grabbing; scroll-snap-type:none; scroll-behavior:auto; }
+
+/* Cada tarjeta define su propia rotación (--r), desplazamiento vertical (--y)
+   y escala (--s) mediante variables CSS: para ajustar la composición "cartas"
+   solo hay que tocar estos tres valores en cada .card:nth-child(n) de abajo.
+   Si agregás o quitás proyectos, las reglas nth-child sobrantes o faltantes
+   no generan errores: simplemente no se aplican. */
+.card{
+  position:relative;
+  --r:0deg; --y:0px; --s:1;
+  flex:0 0 clamp(200px, 24vw, 300px);
+  margin-left:clamp(-64px, -6vw, -36px); /* solapamiento entre tarjetas */
+  scroll-snap-align:center;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+  box-shadow:0 20px 45px -22px rgba(0,0,0,0.65);
+  transform:rotate(calc(var(--r) * var(--rot-scale))) translateY(var(--y)) scale(var(--s));
+  transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+  animation:card-float 7s ease-in-out infinite;
+  animation-play-state:running;
+}
+.card:first-child{ margin-left:0; }
+
+/* Rotación, altura y profundidad individuales (composición "abanico" de cartas) */
+.card:nth-child(1){ --r:-7deg; --y:12px;  --s:0.97; z-index:1; animation-delay:0s; }
+.card:nth-child(2){ --r:4deg;  --y:-16px; --s:1;    z-index:3; animation-delay:.7s; }
+.card:nth-child(3){ --r:-4deg; --y:8px;   --s:0.96; z-index:2; animation-delay:1.4s; }
+.card:nth-child(4){ --r:6deg;  --y:-12px; --s:1;    z-index:3; animation-delay:.35s; }
+.card:nth-child(5){ --r:-5deg; --y:10px;  --s:0.97; z-index:2; animation-delay:1.1s; }
+.card:nth-child(6){ --r:3deg;  --y:-14px; --s:1;    z-index:1; animation-delay:1.75s; }
+
+/* Flotación sutil: mismo keyframe para todas, cada tarjeta parte de su propia
+   rotación/posición (--r/--y) gracias a las variables CSS */
+@keyframes card-float{
+  0%,100%{ transform:rotate(calc(var(--r) * var(--rot-scale))) translateY(var(--y)) scale(var(--s)); }
+  50%{ transform:rotate(calc(var(--r) * var(--rot-scale))) translateY(calc(var(--y) - 8px)) scale(var(--s)); }
+}
+
+/* Al pasar el mouse o enfocar con teclado: la tarjeta se endereza, pasa al frente
+   y se levanta, revelándose por completo sobre las demás */
+.card:hover, .card:focus-visible{
+  transform:rotate(0deg) translateY(-16px) scale(1.05);
+  z-index:20;
+  border-color:var(--violet);
+  box-shadow:0 30px 60px -18px var(--violet-dim);
+  animation-play-state:paused; /* evita que la flotación pelee con el estado hover */
+}
+
+.card__media{
+  aspect-ratio:4/3;
+  overflow:hidden;
+  background:linear-gradient(135deg, var(--blue-dim), var(--violet-dim));
+}
+/* ⚠️ Las imágenes de tarjeta viven junto a este index.html (sin carpeta assets/):
+   para cambiar una, reemplazá el archivo del mismo nombre o editá el src de abajo. */
+.card__media img{
+  width:100%; height:100%; object-fit:cover;
+  filter:grayscale(0.3);
+  transition:transform .4s ease, filter .4s ease;
+}
+.card:hover .card__media img{ transform:scale(1.06); filter:grayscale(0); }
+
+.card__body{ padding:1.2rem 1.3rem 1.4rem; }
+.card__tag{ font-size:0.78rem; color:var(--violet); letter-spacing:0.06em; text-transform:uppercase; }
+.card__title{ font-family:var(--font-display); font-size:1.15rem; margin-top:0.4rem; }
+.card__open{
+  display:inline-block;
+  margin-top:0.9rem;
+  font-size:0.85rem;
+  color:var(--blue);
+}
+
+/* En pantallas chicas se reduce el solapamiento y la rotación para que cada
+   tarjeta siga siendo fácil de tocar (accesibilidad táctil) */
+@media (max-width:640px){
+  .carousel{ --rot-scale:0.4; padding-inline:1rem; }
+  .card{ flex-basis:72vw; margin-left:clamp(-28px, -8vw, -16px); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .card{ animation:none; }
+}
+
+/* ==================================================================
+   7. MODAL DE PROYECTO — implementado 100% en CSS con :target
+   (cada tarjeta linkea a #proyecto-N; sin JS)
+   ================================================================== */
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:200;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:1.5rem;
+  background:rgba(6,6,10,0.8);
+  -webkit-backdrop-filter:blur(6px); /* prefijo necesario para Safari */
+  backdrop-filter:blur(6px);
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .25s ease, visibility .25s ease;
+}
+.modal:target{ opacity:1; visibility:visible; }
+
+.modal__panel{
+  width:100%;
+  max-width:640px;
+  max-height:85vh;
+  overflow-y:auto;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:clamp(1.5rem, 4vw, 2.5rem);
+  position:relative;
+}
+
+.modal__close{
+  position:absolute;
+  top:1.2rem; right:1.2rem;
+  width:36px; height:36px;
+  border-radius:50%;
+  border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.1rem;
+  color:var(--text-muted);
+}
+.modal__close:hover{ color:var(--text); border-color:var(--violet); }
+
+.modal__tag{ font-size:0.8rem; color:var(--violet); text-transform:uppercase; letter-spacing:0.08em; }
+.modal__title{ font-family:var(--font-display); font-size:clamp(1.4rem,3vw,1.9rem); margin-top:0.5rem; }
+.modal__media{
+  margin-top:1.4rem;
+  border-radius:10px;
+  overflow:hidden;
+  aspect-ratio:16/9;
+  background:linear-gradient(135deg, var(--blue-dim), var(--violet-dim));
+}
+.modal__media img{ width:100%; height:100%; object-fit:cover; }
+.modal__desc{ margin-top:1.2rem; color:var(--text-muted); }
+.modal__meta{
+  display:flex; flex-wrap:wrap; gap:0.5rem;
+  margin-top:1.3rem;
+}
+.modal__meta li{
+  font-size:0.8rem;
+  padding:0.4rem 0.8rem;
+  border:1px solid var(--border);
+  border-radius:999px;
+  color:var(--text-muted);
+}
+.modal__link{
+  display:inline-block;
+  margin-top:1.5rem;
+  color:var(--blue);
+  font-size:0.9rem;
+}
+
+/* ==================================================================
+   8. CONTACTO / FOOTER
+   ================================================================== */
+.contact{
+  text-align:center;
+  border-top:1px solid var(--border);
+}
+.contact h2{ font-size:clamp(1.8rem, 5vw, 3rem); max-width:18ch; margin-inline:auto; }
+.contact p{ color:var(--text-muted); margin-top:1rem; }
+.contact .btn{ margin-top:2rem; }
+
+.footer{
+  border-top:1px solid var(--border);
+  padding-block:1.6rem;
+}
+.footer__inner{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:0.8rem;
+  font-size:0.82rem;
+  color:var(--text-muted);
+}
+.footer__social{ display:flex; gap:1rem; }
+.footer__social a:hover{ color:var(--violet); }
+
+/* En mobile, space-between + flex-wrap dejaba el copyright y las redes sociales
+   pegados a extremos opuestos en líneas separadas, descentrados. Se centra todo. */
+@media (max-width:600px){
+  .footer__inner{ justify-content:center; text-align:center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     GUÍA RÁPIDA DE EDICIÓN
+     - Colores:        variables en :root, al inicio del <style> (línea ~24)
+     - Tipografías:     variables --font-display / --font-body en :root
+     - Hero:            <section class="hero" id="top">              → título, texto y foto (perfil_arapeluffo.png)
+     - Sobre mí:        <section class="about" id="sobre-mi">        → bio y lista de habilidades
+     - Portfolio:       <section id="proyectos">                     → agregar/quitar tarjetas <a class="card">
+     - Carrusel:        <div class="carousel" id="carousel">         → scroll nativo, snap suave,
+                         arrastre de mouse y rueda (ver <script> al final del archivo).
+                         Composición "cartas": cada tarjeta define su rotación, altura y escala
+                         con las variables --r / --y / --s en su regla .card:nth-child(N) (sección 6 del CSS).
+     - Modales:         bloques <div class="modal" id="proyecto-N">, uno por cada tarjeta
+     - Contacto:        <section class="contact" id="contacto">      → email y botón
+     - Footer:          <footer class="footer">                      → año, nombre y redes sociales
+     - Imágenes:        todas viven junto a este index.html (sin carpeta assets/); para reemplazar
+                         una, subí un archivo con el mismo nombre o editá el src correspondiente.
+     - Enlaces:         los "Ver caso completo" y las redes del footer son URLs reales de Ara;
+                         actualizalos si cambian.
+     Todos los puntos editables también están marcados con <!-- EDITAR: ... --> en su lugar exacto.
+     ============================================================ -->
+
+<!-- =============================== NAV =============================== -->
+<header class="nav">
+  <div class="container nav__inner">
+    <!-- EDITAR: nombre / logo -->
+    <a href="#top" class="nav__logo">Ara<span>.Peluffo</span></a>
+    <nav class="nav__links">
+      <a href="#proyectos">Proyectos</a>
+      <a href="#sobre-mi">Sobre mí</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+  </div>
+</header>
+
+<!-- =============================== HERO =============================== -->
+<section class="hero" id="top">
+  <div class="container hero__grid">
+    <div>
+      <p class="hero__eyebrow">UI/UX &amp; Dirección de Arte</p>
+    </div>
+
+    <div class="hero__visual">
+      <!-- Manchas de luz animadas: el elemento distintivo del hero -->
+      <div class="hero__glow" aria-hidden="true">
+        <span></span>
+        <span></span>
+      </div>
+      
+      <div class="hero__photo">
+        <img src="perfil_arapeluffo.png" alt="Foto de perfil de Ara Peluffo">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================== SOBRE MÍ =============================== -->
+<section class="about" id="sobre-mi">
+  <div class="container about__grid">
+    <div>
+      <p class="section-label">Sobre mí</p>
+      <!-- EDITAR: título de la sección -->
+      <h2>Diseño con intención y también porque me divierte.</h2>
+    </div>
+    <div>
+      <!-- EDITAR: bio -->
+      <p>Soy diseñadora UI/UX y a vececes directora de arte. Productota Digital de la UNQ especializada en construir experiencias digitales y sistemas de identidad visual. Combino diseño, fotografía y desarrollo para llevar cada proyecto de la idea al resultado final.</p>
+      <p>Trabajé en proyectos que abarcan turismo, gastronomía, real estate y cultura, siempre buscando una solución visual clara y funcional y acorde sus presupuestos.</p>
+
+      <!-- EDITAR: lista de habilidades / herramientas -->
+      <ul class="skills">
+        <li>UI / UX</li>
+        <li>Branding</li>
+        <li>Dirección de arte</li>
+        <li>Fotografía</li>
+        <li>Desarrollo web</li>
+        <li>SEO &amp; GEO</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- =============================== PORTFOLIO =============================== -->
+<section id="proyectos">
+  <div class="container">
+    <div class="projects__header">
+      <div>
+        <p class="section-label">Portfolio</p>
+        <h2>Algunos de mis trabajos</h2>
+      </div>
+      <!-- Botones opcionales del carrusel (usan el único JS del sitio) -->
+      <div class="carousel__controls">
+        <button class="carousel__btn" onclick="scrollCarousel(-1)" aria-label="Anterior">←</button>
+        <button class="carousel__btn" onclick="scrollCarousel(1)" aria-label="Siguiente">→</button>
+      </div>
+    </div>
+
+    <!-- ============ CARRUSEL: TARJETAS EN COMPOSICIÓN "CARTAS" ============
+         Para agregar/quitar proyectos, duplicar/eliminar un bloque
+         <a class="card">...</a> junto con su <div class="modal"> correspondiente.
+         La rotación/profundidad de cada tarjeta se define en el CSS
+         (.card:nth-child(N) con --r/--y/--s), no en este HTML. -->
+    <div class="carousel" id="carousel">
+
+      <!-- Tarjeta 1 -->
+      <a href="#proyecto-1" class="card">
+        <div class="card__media"><img src="guiatematica_arapeluffo.png" alt="Galería temática UI/UX — Municipalidad de Ushuaia" loading="lazy"></div>
+        <div class="card__body">
+          <p class="card__tag">Galería temática UI/UX</p>
+          <h3 class="card__title">Municipalidad de Ushuaia</h3>
+          <span class="card__open">Ver proyecto</span>
+        </div>
+      </a>
+
+      <!-- Tarjeta 2 -->
+      <a href="#proyecto-2" class="card">
+        <div class="card__media"><img src="laintensidad_arapeluffo.png" alt="Identidad y fotografía — La Intensidad de su luz" loading="lazy"></div>
+        <div class="card__body">
+          <p class="card__tag">Identidad, fotografía y diseño para obra de teatro</p>
+          <h3 class="card__title">La Intensidad de su luz</h3>
+          <span class="card__open">Ver proyecto </span>
+        </div>
+      </a>
+
+      <!-- Tarjeta 3 -->
+      <a href="#proyecto-3" class="card">
+        <div class="card__media"><img src="menuarg_arapeluffo.png" alt="MenuArg — plataforma web gastronómica" loading="lazy"></div>
+        <div class="card__body">
+          <p class="card__tag">MenuArg</p>
+          <h3 class="card__title">UI/UX &amp; founder</h3>
+          <span class="card__open">Ver proyecto →</span>
+        </div>
+      </a>
+
+      <!-- Tarjeta 4 -->
+      <a href="#proyecto-4" class="card">
+        <div class="card__media"><img src="ecosmedia_arapeluffo.jpg" alt="Ecos Media — web, SEO y GEO para real estate" loading="lazy"></div>
+        <div class="card__body">
+          <p class="card__tag">Ecos.Media</p>
+          <h3 class="card__title">Web - SEO - GEO para Real Estate</h3>
+          <span class="card__open">Ver proyecto </span>
+        </div>
+      </a>
+
+      <!-- Tarjeta 5 -->
+      <a href="#proyecto-5" class="card">
+        <div class="card__media"><img src="branding_arapeluffo.png" alt="Branding — Doña Esther, comidas caseras" loading="lazy"></div>
+        <div class="card__body">
+          <p class="card__tag">Branding</p>
+          <h3 class="card__title">Doña Esther - DG</h3>
+          <span class="card__open">Ver proyecto </span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ MODALES DE PROYECTO ============
+     Uno por tarjeta, con id="proyecto-N" coincidiendo con el href de la tarjeta.
+     Se editan textos/imágenes acá; la lógica de apertura/cierre es solo CSS. -->
+
+<div class="modal" id="proyecto-1">
+  <div class="modal__panel">
+    <a href="#cerrar" class="modal__close" aria-label="Cerrar">✕</a>
+    <p class="modal__tag">Municipalidad de Ushuaia</p>
+    <h3 class="modal__title">Galería temática UI/UX</h3>
+    <div class="modal__media"><img src="1.png" alt="Galería temática UI/UX — Municipalidad de Ushuaia" loading="lazy"></div>
+    <p class="modal__desc">Diseño UI/UX y estrategia de comunicación omnicanal para la audioguía del museo. Creación de la app móvil, sistema de navegación y cartelería física para maximizar la adopción de los visitantes.</p>
+    <ul class="modal__meta">
+      <li>Benchmarking</li>
+      <li>Adobe: XD, AI, PS</li>
+      <li>2019</li>
+    </ul>
+    <a href="https://www.behance.net/gallery/253215625/Audioguia-Galeria-Tematica-Historia-Fueguina" class="modal__link">Ver caso completo </a>
+  </div>
+</div>
+
+<div class="modal" id="proyecto-2">
+  <div class="modal__panel">
+    <a href="#cerrar" class="modal__close" aria-label="Cerrar">✕</a>
+    <p class="modal__tag">Identidad, Fotografía y diseño para obra de teatro</p>
+    <h3 class="modal__title">La Intensidad de su luz — Diseño Gráfico &amp; Fotografía</h3>
+    <div class="modal__media"><img src="laintensidad1_arapeluffo.png" alt="Piezas de identidad y fotografía — La Intensidad de su luz" loading="lazy"></div>
+    <p class="modal__desc">Diseño de identidad visual, fotografía y piezas de difusión para la obra teatral "La Intensidad de su Luz". Un trabajo de composición libre enfocado en capturar la atmósfera campestre y la puesta en escena, integrando la paleta cromática de la escenografía en la folletería, afiches y material editorial.</p>
+    <ul class="modal__meta">
+      <li>Dirección de Arte</li>
+      <li>Fotografía</li>
+      <li>Diseño Editorial</li>
+      <li>Generación de Imágenes (IA)</li>
+      <li>2023</li>
+    </ul>
+    <a href="https://www.behance.net/gallery/179250957/Diseno-Intensidad-de-su-LUZ" class="modal__link">Ver caso completo </a>
+  </div>
+</div>
+
+<div class="modal" id="proyecto-3">
+  <div class="modal__panel">
+    <a href="#cerrar" class="modal__close" aria-label="Cerrar">✕</a>
+    <p class="modal__tag">UI/UX &amp; founder</p>
+    <h3 class="modal__title">MENUARG — Plataforma Web Gastronómica</h3>
+    <div class="modal__media"><img src="1menuarg_arapeluffo.png" alt="MenuArg — plataforma web gastronómica" loading="lazy"></div>
+    <p class="modal__desc">Creación de una solución web autónoma construida desde cero sin frameworks (Vanilla PHP/CSS/HTML). Diseñé la experiencia para dos perfiles de usuario: un buscador intuitivo basado en geolocalización para clientes, y un sistema de gestión de menús con optimización SEO para que los emprendedores aumenten su visibilidad orgánica.</p>
+    <ul class="modal__meta">
+      <li>Full Stack Development</li>
+      <li>Vanilla PHP</li>
+      <li>SEO &amp; Geo</li>
+      <li>CSS3 / HTML5</li>
+      <li>Gastronomía</li>
+      <li>2026</li>
+    </ul>
+    <a href="https://menuarg.shop" class="modal__link">Ver caso completo </a>
+  </div>
+</div>
+
+<div class="modal" id="proyecto-4">
+  <div class="modal__panel">
+    <a href="#cerrar" class="modal__close" aria-label="Cerrar">✕</a>
+    <p class="modal__tag">Ecos Media</p>
+    <h3 class="modal__title">Plataforma Web &amp; Captación de Leads</h3>
+    <div class="modal__media"><img src="1ecosmedia_arapeluffo.png" alt="Ecos Media — plataforma web y captación de leads" loading="lazy"></div>
+    <p class="modal__desc">Concepción, diseño UI/UX y desarrollo web integral asistido por IA (HTML, CSS). Diseñé una arquitectura orientada a la conversión dividida en dos verticales: servicios para hoteles y para clientes particulares. Incorporé optimización SEO y geolocalización (GEO) para posicionamiento en Google, integración de reservas directas a WhatsApp y analítica avanzada con Google Analytics para medir métricas clave.</p>
+    <ul class="modal__meta">
+      <li>Product Design</li>
+      <li>UI/UX &amp; HTML/CSS</li>
+      <li>SEO &amp; GEO Strategy</li>
+      <li>Google Analytics</li>
+      <li>AI-Assisted Workflow</li>
+      <li>2026</li>
+    </ul>
+    <!-- EDITAR: todavía no hay un link público para este proyecto, reemplazar el "#" cuando lo haya -->
+    <a href="#" class="modal__link">Ver caso completo </a>
+  </div>
+</div>
+
+<div class="modal" id="proyecto-5">
+  <div class="modal__panel">
+    <a href="#cerrar" class="modal__close" aria-label="Cerrar">✕</a>
+    <p class="modal__tag">Branding &amp; Identidad Visual Gastronómica</p>
+    <h3 class="modal__title">Doña Esther</h3>
+    <div class="modal__media"><img src="branding_arapeluffo.png" alt="Branding — Doña Esther, comidas caseras" loading="lazy"></div>
+    <p class="modal__desc">Desarrollo integral de marca desde cero para un emprendimiento de comidas caseras. Diseñé el logotipo, la paleta cromática, el sistema tipográfico y un manual de marca simplificado. Creé un universo visual cálido y acogedor que cobra vida en múltiples aplicaciones: packaging, indumentaria (delantales), merch (tote bags), cartelería comercial y comunicación digital.</p>
+    <ul class="modal__meta">
+      <li>Branding &amp; Identity</li>
+      <li>Packaging Design</li>
+      <li>Manual de Marca</li>
+      <li>Merchandising</li>
+      <li>Gastronomía</li>
+      <li>2025</li>
+    </ul>
+    <a href="https://www.behance.net/gallery/225435519/Logo-Dona-Esther-Comidas-caseras" class="modal__link">Ver caso completo</a>
+  </div>
+</div>
+
+<!-- =============================== CONTACTO =============================== -->
+<section class="contact" id="contacto">
+  <div class="container">
+    <p class="section-label">Contacto</p>
+    <!-- EDITAR: título de contacto -->
+    <h2>¿Tenés un proyecto en mente? Hablemos <br> 
+    ヾ(•ω•`)o.</h2>
+    <!-- EDITAR: email -->
+    <p>araceli.peluffo@gmail.com</p>
+    <a href="mailto:araceli.peluffo@gmail.com" class="btn btn--primary">Escribime</a>
+  </div>
+</section>
+
+<!-- =============================== FOOTER =============================== -->
+<footer class="footer">
+  <div class="container footer__inner">
+    <!-- EDITAR: año / nombre -->
+    <p>© 2026 Ara Peluffo</p>
+    <!-- EDITAR: enlaces sociales -->
+    <div class="footer__social">
+      <a href="https://www.instagram.com/arapeluffo/">Instagram</a>
+      <a href="https://www.linkedin.com/in/arapeluffo/">LinkedIn</a>
+      <a href="https://www.behance.net/aracelipeluffo">Behance</a>
+      <a href="https://github.com/aracelipeluffo">Github</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================
+     JAVASCRIPT — ÚNICO BLOQUE DEL SITIO
+     Se usa exclusivamente para lo que HTML/CSS no pueden resolver:
+     el arrastre del carrusel con mouse en desktop y el scroll con
+     rueda vertical. El scroll táctil (celular/tablet) ya funciona
+     de forma nativa gracias a "overflow-x:auto" y no depende de
+     este script.
+     ============================================================ -->
+<script>
+  (function(){
+    var carousel = document.getElementById('carousel');
+    if(!carousel) return;
+
+    /* ---------- 1. Botones "←" "→" ----------
+       Calculan el ancho real de una tarjeta + su solapamiento (margin-left negativo)
+       en vez de usar un valor fijo en px, para que el desplazamiento sea exacto
+       sin importar el tamaño de pantalla ni la cantidad de proyectos. Se usa desde
+       el atributo onclick="scrollCarousel(±1)" en los botones. */
+    window.scrollCarousel = function(direction){
+      var cards = carousel.querySelectorAll('.card');
+      if(cards.length < 2) return;
+      var second = cards[1]; // la 1ª tarjeta no tiene solapamiento (margin-left:0)
+      var overlap = parseFloat(getComputedStyle(second).marginLeft) || 0; // valor negativo
+      var distance = second.getBoundingClientRect().width + overlap;
+      carousel.scrollBy({ left: distance * direction, behavior:'smooth' });
+    };
+
+    /* ---------- 2. Arrastre con mouse (drag to scroll) ----------
+       Los navegadores no permiten arrastrar un contenedor con overflow
+       usando el mouse por defecto (solo con touch/trackpad). Este bloque
+       traduce el movimiento del mouse en scroll horizontal. */
+    var isDown = false;
+    var startX = 0;
+    var startScroll = 0;
+    var moved = false;
+
+    carousel.addEventListener('pointerdown', function(e){
+      isDown = true;
+      moved = false;
+      startX = e.clientX;
+      startScroll = carousel.scrollLeft;
+      carousel.classList.add('is-dragging'); // desactiva el snap mientras se arrastra
+    });
+
+    carousel.addEventListener('pointermove', function(e){
+      if(!isDown) return;
+      var delta = e.clientX - startX;
+      if(Math.abs(delta) > 4) moved = true; // umbral para distinguir "click" de "arrastre"
+      carousel.scrollLeft = startScroll - delta;
+    });
+
+    function endDrag(){
+      isDown = false;
+      carousel.classList.remove('is-dragging');
+    }
+    carousel.addEventListener('pointerup', endDrag);
+    carousel.addEventListener('pointerleave', endDrag);
+
+    /* Evita que un arrastre termine abriendo el modal de la tarjeta
+       (solo se cancela el click si realmente hubo desplazamiento). */
+    carousel.addEventListener('click', function(e){
+      if(moved){ e.preventDefault(); }
+    });
+
+    /* ---------- 3. Rueda del mouse → scroll horizontal ----------
+       La mayoría de los mouse de escritorio solo tienen rueda vertical.
+       Si el usuario scrollea sobre el carrusel, se traduce ese
+       movimiento vertical en desplazamiento horizontal. Los trackpads
+       que ya envían scroll horizontal nativo (deltaX) no se ven afectados. */
+    carousel.addEventListener('wheel', function(e){
+      var isMostlyVertical = Math.abs(e.deltaY) > Math.abs(e.deltaX);
+      if(isMostlyVertical){
+        e.preventDefault();
+        carousel.scrollLeft += e.deltaY;
+      }
+    }, { passive:false });
+  })();
+</script>
+
+</body>
+</html>
